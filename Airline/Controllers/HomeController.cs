@@ -101,7 +101,7 @@ namespace Airline.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("FlightId,AircraftType,FromLocation,ToLocation,DepartureTime,ArrivalTime,Timestamp")] Flight flight)
+        public async Task<IActionResult> Edit(Guid id, [Bind("FlightId,AircraftType,FromLocation,ToLocation,DepartureTime,ArrivalTime")] Flight flight)
         {
             if (id != flight.FlightId)
             {
@@ -133,7 +133,7 @@ namespace Airline.Controllers
         }
 
         // GET: Home/Delete/5
-        [HttpPost]
+        [HttpDelete]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(Guid Id)
         {
