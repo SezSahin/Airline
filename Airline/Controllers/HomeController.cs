@@ -116,9 +116,16 @@ namespace Airline.Controllers
                     var response = await _client.PutAsJsonAsync<Flight>(BaseEndPoint + $"/{id}", flight);
                     response.EnsureSuccessStatusCode();
                 }
-                catch (Exception e)
+                catch (HttpRequestException)
                 {
-                    return View(e.Message);
+                    if(!await FlightExists(flight.FlightId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
                 return RedirectToAction("Index");
             }
@@ -149,6 +156,15 @@ namespace Airline.Controllers
             response.EnsureSuccessStatusCode();
             var data = await response.Content.ReadAsStringAsync();
             return View(JsonConvert.DeserializeObject<List<Flight>>(data));
+        }
+
+        private async Task<bool> FlightExists(Guid id)
+        {
+            var response = await _client.GetAsync(BaseEndPoint, HttpCompletionOption.ResponseHeadersRead);
+            response.EnsureSuccessStatusCode();
+            var data = await response.Content.ReadAsStringAsync();
+            var context = JsonConvert.DeserializeObject<List<Flight>>(data);
+            return context.Any(e => e.FlightId == id);
         }
     }
 }

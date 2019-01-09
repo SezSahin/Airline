@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Contracts.Interfaces;
+using Entities.Data;
 using Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,10 +18,12 @@ namespace AirlineAPI.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public FlightController(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly DataContext _db;
+        public FlightController(IUnitOfWork unitOfWork, IMapper mapper, DataContext db)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _db = db;
         }
 
         // GET: api/Flight
@@ -59,8 +62,7 @@ namespace AirlineAPI.Controllers
             return Ok();
         }
 
-        //PUT: api/Flight/5
-        [HttpPut("")]
+        [HttpPut()]
         public IActionResult Edit(Guid? id, Flight flight)
         {
             if (ModelState.IsValid)
@@ -73,9 +75,9 @@ namespace AirlineAPI.Controllers
                 var oldFlight = _mapper.Map<Flight>(_unitOfWork.FlightRepository.Get(flight.FlightId));
                 try
                 {
-                    //oldFlight.AircraftType = flight.AircraftType;
-                    //oldFlight.FromLocation = flight.FromLocation;
-                    //oldFlight.ToLocation = flight.ToLocation;
+                    oldFlight.AircraftType = flight.AircraftType;
+                    oldFlight.FromLocation = flight.FromLocation;
+                    oldFlight.ToLocation = flight.ToLocation;
                     oldFlight.DepartureTime = flight.DepartureTime;
                     oldFlight.ArrivalTime = flight.ArrivalTime;
 
@@ -93,8 +95,42 @@ namespace AirlineAPI.Controllers
             }
         }
 
+        ////PUT: api/Flight/5
+        //[HttpPut("Time")]
+        //public IActionResult EditTime(Guid? id, Flight flight)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        if (_unitOfWork.FlightRepository.Get(flight.FlightId) is null)
+        //        {
+        //            return NotFound();
+        //        }
+
+        //        var oldFlight = _mapper.Map<Flight>(_unitOfWork.FlightRepository.Get(flight.FlightId));
+        //        try
+        //        {
+        //            //oldFlight.AircraftType = flight.AircraftType;
+        //            //oldFlight.FromLocation = flight.FromLocation;
+        //            //oldFlight.ToLocation = flight.ToLocation;
+        //            oldFlight.DepartureTime = flight.DepartureTime;
+        //            oldFlight.ArrivalTime = flight.ArrivalTime;
+
+        //            _unitOfWork.Complete();
+        //            return Ok();
+        //        }
+        //        catch (Exception)
+        //        {
+        //            return Conflict();
+        //        }
+        //    }
+        //    else
+        //    {
+        //        return BadRequest();
+        //    }
+        //}
+
         [HttpPut("{id}")]
-        public IActionResult Edit([FromRoute]Guid id, [FromRoute]Flight flight)
+        public IActionResult Edit([FromRoute]Guid id, [FromBody]Flight flight)
         {
             if (ModelState.IsValid)
             {
@@ -146,9 +182,9 @@ namespace AirlineAPI.Controllers
 
         }
 
-        //private bool FlightExists(Guid id)
-        //{
-        //    return _unitOfWork.FlightRepository.Any(id);
-        //}
+        private bool FlightExists(Guid id)
+        {
+            return _db.Flights.Any(x => x.FlightId == id);
+        }
     }
 }

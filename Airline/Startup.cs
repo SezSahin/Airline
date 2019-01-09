@@ -38,7 +38,7 @@ namespace Airline
             }
 
             app.UseMvc(routes =>
-            routes.MapRoute("default", "{controller=Home}/{action=Index}"));
+            routes.MapRoute("default", "{controller=Home}/{action=Index}/{id?}"));
 
             app.Run(async (context) =>
             {
